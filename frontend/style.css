@@ -1,0 +1,21 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f4f4f4;
+  text-align: center;
+}
+
+h1 {
+  margin: 16px 0;
+}
+
+.controls {
+  margin-bottom: 8px;
+}
+
+#viewer {
+  width: 100vw;
+  height: calc(100vh - 120px);
+  background: #eaeaea;
+  border-top: 1px solid #aaa;
+}
