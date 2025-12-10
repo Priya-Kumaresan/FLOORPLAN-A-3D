@@ -6,26 +6,53 @@ async function upload() {
       return;
     }
 
+    const convertBtn = document.getElementById("convertBtn");
+    const originalText = convertBtn.textContent;
+    convertBtn.disabled = true;
+    convertBtn.textContent = "Converting...";
+    
+    const viewer = document.getElementById("viewer");
+    viewer.innerHTML = "<p style='padding: 20px; color: #666;'>Processing floor plan... This may take a moment.</p>";
+
+    console.log("Uploading file:", fileInput.name);
+
     const formData = new FormData();
     formData.append("file", fileInput);
 
+    console.log("Sending request to http://127.0.0.1:8000/convert");
     const response = await fetch("http://127.0.0.1:8000/convert", {
       method: "POST",
       body: formData,
     });
 
+    console.log("Response status:", response.status, response.statusText);
+
     if (!response.ok) {
       const text = await response.text();
+      console.error("Backend error:", text);
+      viewer.innerHTML = `<p style='padding: 20px; color: red;'>Error: ${text}</p>`;
+      convertBtn.disabled = false;
+      convertBtn.textContent = originalText;
       alert("Error from backend:\n" + text);
       return;
     }
 
+    console.log("Received GLB file, loading 3D model...");
     const blob = await response.blob();
+    console.log("Blob size:", blob.size, "bytes");
     const url = URL.createObjectURL(blob);
     loadModel(url);
+    
+    convertBtn.disabled = false;
+    convertBtn.textContent = originalText;
   } catch (err) {
-    alert("Error uploading file: " + err);
-    console.error(err);
+    console.error("Upload error:", err);
+    const viewer = document.getElementById("viewer");
+    viewer.innerHTML = `<p style='padding: 20px; color: red;'>Error: ${err.message}</p>`;
+    const convertBtn = document.getElementById("convertBtn");
+    convertBtn.disabled = false;
+    convertBtn.textContent = "Convert";
+    alert("Error uploading file: " + err.message);
   }
 }
 
